@@ -1,8 +1,6 @@
 use core::panic;
 
-use rspotify::{
-    model::AlbumId, prelude::*, scopes, AuthCodeSpotify, ClientCredsSpotify, Credentials, OAuth,
-};
+use rspotify::{prelude::BaseClient, ClientCredsSpotify, Credentials};
 use tauri::async_runtime::block_on;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -23,18 +21,22 @@ pub fn run() {
         }
         Err(err) => panic!("Oh shit! : {}", err),
     }
-
-    let birdy_uri = AlbumId::from_uri("spotify:album:0sNOF9WDwhWunNAHPD3Baj")
-        .expect("Failed to create album id");
-    match block_on(spotify.album(birdy_uri, None)) {
-        Ok(album) => {
-            dbg!("Well would you look at that!");
-            dbg!(album);
+    match block_on(spotify.search(
+        "Kvelertak",
+        rspotify::model::SearchType::Artist,
+        None,
+        None,
+        None,
+        None,
+    )) {
+        Ok(search_result) => {
+            println!("Well well!");
+            dbg!(search_result);
         }
         Err(err) => {
             panic!("Oh shit! : {}", err);
         }
-    }
+    };
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
