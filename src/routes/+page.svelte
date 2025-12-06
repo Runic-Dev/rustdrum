@@ -2,33 +2,18 @@
   import { invoke } from "@tauri-apps/api/core";
 
   let artistName = $state("");
-  let greetMsg = $state("");
+  let response: any = $state({});
 
-  async function greet(event: Event) {
+  async function searchArtists(event: Event) {
     event.preventDefault();
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("search_artist", { artistName: artistName });
-    console.log(greetMsg);
+    response = await invoke("search_artists", { artistName });
+    console.log(response);
   }
 </script>
 
 <main class="container">
-  <h1>Welcome to Tauri + Svelte</h1>
-
-  <div class="row">
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte-kit" alt="SvelteKit Logo" />
-    </a>
-  </div>
-  <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
-
-  <form class="row" onsubmit={greet}>
+  <form class="row" onsubmit={searchArtists}>
     <input
       id="greet-input"
       placeholder="Enter a name..."
@@ -36,10 +21,30 @@
     />
     <button type="submit">Greet</button>
   </form>
-  <img src={greetMsg} />
+  {#if response.success}
+    <div class="artist-container">
+      {#each response.content.items as item}
+        <div
+          class="artist"
+          style={`background-image: url('${item.images[0].url}');`}
+        >
+          <h3>{item.name}</h3>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </main>
 
 <style lang="scss">
+  .artist-container {
+    display: flex;
+
+    .artist {
+      background-position: center;
+      background-size: cover;
+      border-radius: 10px;
+    }
+  }
   .logo.vite:hover {
     filter: drop-shadow(0 0 2em #747bff);
   }
